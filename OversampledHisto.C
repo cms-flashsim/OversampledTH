@@ -55,7 +55,6 @@ public:
     fHistos[genEvent][slot].Fill(values..., weight);
     cout << "genEvent: " << genEvent << " Slot: " << slot << endl;
     if (genEvent != current[slot]) {
-      cout << "Flush" << endl;
       Flush();
       current[slot] = genEvent; // Update current event for this slot (thread)
     }
@@ -75,6 +74,8 @@ public:
   void Flush(bool all = false) {
     // Gets the minimum genEvent from all the slots
     auto minGen = *std::min_element(current.begin(), current.end());
+    cout << "minGen: " << minGen << endl;
+    cout << "lastFlush: " << lastFlush << endl;
     // If the last flushed genEvent is less than (minGen - 1) or 'all' is true, it starts flushing histograms
     // 'all' would be true when Finalize() function is called at the end of event loop
     if ((lastFlush < (minGen - 1)) || all) {
