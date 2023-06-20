@@ -102,7 +102,7 @@ public:
   std::string GetActionName() { return "OversampledTH"; }
 };
 
-void df018_customActions() {
+void df018_customActionsGPT4() {
 
   ROOT::EnableImplicitMT();
 
