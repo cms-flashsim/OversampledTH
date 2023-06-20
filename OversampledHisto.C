@@ -55,8 +55,14 @@ public:
     fHistos[genEvent][slot].Fill(values..., weight);
     cout << "genEvent: " << genEvent << " Slot: " << slot << endl;
     if (genEvent != current[slot]) {
-      current[slot] = genEvent; // Update current event for this slot (thread)
+      cout << "genEvent" << genEvent << " != current[slot]" << current[slot] << endl;
+      // print all entries of current
+      // cout << "current: " << endl;
+      // for (auto i : current) {
+      //   cout << i << endl;
+      // }
       Flush();
+      current[slot] = genEvent; // Update current event for this slot (thread)
     }
   }
 
@@ -107,7 +113,7 @@ public:
 
 void OversampledHisto() {
 
-  ROOT::EnableImplicitMT();
+  ROOT::EnableImplicitMT(20);
 
   ROOT::RDataFrame rdf{"Events", "test_oversampling.root"};
 
