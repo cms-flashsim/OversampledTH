@@ -9,13 +9,13 @@ private:
   // Number of slots (threads)
   int nSlots;
   // Use unordered_map instead of map for faster access times
-  std::unordered_map<long int, std::unordered_map<int, TH>> fHistos;
+  std::unordered_map<long int, std::unordered_map<int, TH>> fHistos;  // (One histo per slot) per genEvent
   // Shared pointer to the final histogram
   std::shared_ptr<TH> fFinalHisto;
   // Vector to keep track of the current event per slot
   std::vector<long int> current;
   // Keep track of the last flushed event
-  long int lastFlush = -1;
+  long int lastFlush = -1; // default = -1 since genEvent starts from 0
 
 
 public:
@@ -55,8 +55,9 @@ public:
     fHistos[genEvent][slot].Fill(values..., weight);
     cout << "genEvent: " << genEvent << " Slot: " << slot << endl;
     if (genEvent != current[slot]) {
+      cout << "Flush" << endl;
       Flush();
-      current[slot] = genEvent;
+      current[slot] = genEvent; // Update current event for this slot (thread)
     }
   }
 
