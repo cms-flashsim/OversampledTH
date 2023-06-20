@@ -8,11 +8,10 @@ private:
   std::map<long int, std::map<int, TH>>
       fHistos; // (One histo per slot) per genEvent
   std::shared_ptr<TH> fFinalHisto;
+  std::vector<long int> current;
   long int lastFlush = -1; // default = -1 since genEvent starts from 0
-  int nSlots;
-  std::vector<long int> current =
-      std::vector<long int>(nSlots, -1); // default = -1 since genEvent starts
-                                         // from 0
+  int nSlots;              // default = -1 since genEvent starts
+                           // from 0
 
 public:
   // This constructor takes all the parameters needed to create a TH
@@ -20,6 +19,8 @@ public:
   OversampledTH(std::string_view name, std::string_view title, int nbin,
                 double xmin, double xmax) {
     nSlots = ROOT::IsImplicitMTEnabled() ? ROOT::GetThreadPoolSize() : 1;
+    cout << "nSlots: " << nSlots << endl;
+    current.resize(nSlots, -1);
     fFinalHisto =
         std::make_shared<TH>(std::string(name).c_str(),
                              std::string(title).c_str(), nbin, xmin, xmax);
@@ -37,7 +38,6 @@ public:
   void Exec(unsigned int slot, unsigned long genEvent, ColumnTypes... values,
             float weight = 1) { // ? weight=1 by default ?
     // If slot is not in the map, we create a new entry
-    cout << "slot: " << slot << endl;
     if (!fFinalHisto) {
       std::cerr << "Error: fFinalHisto is null" << std::endl;
       return;
@@ -47,10 +47,9 @@ public:
           std::make_pair(slot, *(TH *)fFinalHisto->Clone()));
       fHistos[genEvent][slot].Reset(); // ! Check if it works
     }
-    cout << "Filling" << endl;
     // Slot-histogram filling for a given genEvent
     fHistos[genEvent][slot].Fill(values..., weight);
-    cout << "Filled" << endl;
+    cout << "genEvent: " << genEvent << " Slot: " << slot << endl;
     // ?
     if (genEvent != current[slot]) { // TODO Define current
       Flush();
