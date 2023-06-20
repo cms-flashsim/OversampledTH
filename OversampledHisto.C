@@ -55,8 +55,8 @@ public:
     fHistos[genEvent][slot].Fill(values..., weight);
     cout << "genEvent: " << genEvent << " Slot: " << slot << endl;
     if (genEvent != current[slot]) {
-      Flush();
       current[slot] = genEvent; // Update current event for this slot (thread)
+      Flush();
     }
   }
 
