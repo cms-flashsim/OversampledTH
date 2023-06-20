@@ -36,14 +36,13 @@ public:
             float weight = 1) { // ? weight=1 by default ?
     // If slot is not in the map, we create a new entry
     if (!(fHistos[genEvent].find(slot) == fHistos[genEvent].end())) {
-      fHistos[genEvent].insert({slot, *(TH *)fFinalHisto->Clone()});
+      fHistos[genEvent].insert(std::make_pair(slot, *(TH *)fFinalHisto->Clone()));
       fHistos[genEvent][slot].Reset(); // ! Check if it works
     }
     // Slot-histogram filling for a given genEvent
-    // ? Add inner loop on RVec in Exec
     fHistos[genEvent][slot].Fill(values..., weight);
     // ?
-    if (genEvent != current[slot]) {
+    if (genEvent != current[slot]) { // TODO Define current
       Flush();
       current[slot] = genEvent;
     }
@@ -73,7 +72,8 @@ public:
   }
   void Finalize() {
     Flush(true); // Flush all
-  }
+  } // TODO: check if slot in fHistos[genEvent] => else create TH with proper
+    // binning from fFinalHisto
   std::string GetActionName() { return "OversampledTH"; }
 };
 
@@ -81,7 +81,9 @@ void df018_customActions() {
 
   ROOT::EnableImplicitMT();
 
-  ROOT::RDataFrame dd{"Events", "~/test_oversampling.root"};
+  ROOT::RDataFrame rdf{"Events", "~/test_oversampling.root"};
+
+  auto dd = rdf.Define("FirstJet_pt", "Jet_pt[0]");
 
   using OversampledTH1F = OversampledTH<TH1F>;
 
@@ -90,8 +92,9 @@ void df018_customActions() {
                          20, 0., 100.};           // Bins and range
 
   // We book the action: it will be treated during the event loop.
-  auto myTH1F = dd.Book<long int, ROOT::VecOps::RVec<float>>(
-      std::move(helper), {"genEventProgressiveNumber", "Jet_pt"});
+  auto myTH1F = dd.Book<long, float>(std::move(helper),
+                                    {"genEventProgressiveNumber", "FirstJet_pt"});
 
   myTH1F->Print();
 }
+
