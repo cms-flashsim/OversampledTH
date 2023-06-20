@@ -110,4 +110,15 @@ void df018_customActions() {
 
   auto dd = rdf.Define("FirstJet_pt", "Jet_pt[0]");
 
-  using OversampledTH1F = Oversampled
+  using OversampledTH1F = OversampledTH<TH1F>;
+
+  OversampledTH1F helper{"myTH1F",                // Name
+                         "Oversampled Histogram", // Title
+                         20, 0., 100.};           // Bins and range
+
+  // We book the action: it will be treated during the event loop.
+  auto myTH1F = dd.Book<long, float>(
+      std::move(helper), {"genEventProgressiveNumber", "FirstJet_pt"});
+
+  myTH1F->Print();
+}
