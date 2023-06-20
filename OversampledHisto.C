@@ -114,7 +114,7 @@ public:
 
 void OversampledHisto() {
 
-  ROOT::EnableImplicitMT(20);
+  ROOT::EnableImplicitMT(2);
 
   ROOT::RDataFrame rdf{"Events", "test_oversampling.root"};
 
