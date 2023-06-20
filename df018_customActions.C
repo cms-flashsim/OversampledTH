@@ -8,9 +8,11 @@ private:
   std::map<long int, std::map<int, TH>>
       fHistos; // (One histo per slot) per genEvent
   std::shared_ptr<TH> fFinalHisto;
-  std::vector<long int> current; // current genEvent for each slot
-  long int lastFlush = -1;       // default = -1 since genEvent starts from 0
+  long int lastFlush = -1; // default = -1 since genEvent starts from 0
   int nSlots;
+  std::vector<long int> current =
+      std::vector<long int>(nSlots, -1); // default = -1 since genEvent starts
+                                         // from 0
 
 public:
   // This constructor takes all the parameters needed to create a TH
@@ -35,12 +37,20 @@ public:
   void Exec(unsigned int slot, unsigned long genEvent, ColumnTypes... values,
             float weight = 1) { // ? weight=1 by default ?
     // If slot is not in the map, we create a new entry
+    cout << "slot: " << slot << endl;
+    if (!fFinalHisto) {
+      std::cerr << "Error: fFinalHisto is null" << std::endl;
+      return;
+    }
     if (!(fHistos[genEvent].find(slot) == fHistos[genEvent].end())) {
-      fHistos[genEvent].insert(std::make_pair(slot, *(TH *)fFinalHisto->Clone()));
+      fHistos[genEvent].insert(
+          std::make_pair(slot, *(TH *)fFinalHisto->Clone()));
       fHistos[genEvent][slot].Reset(); // ! Check if it works
     }
+    cout << "Filling" << endl;
     // Slot-histogram filling for a given genEvent
     fHistos[genEvent][slot].Fill(values..., weight);
+    cout << "Filled" << endl;
     // ?
     if (genEvent != current[slot]) { // TODO Define current
       Flush();
@@ -81,7 +91,7 @@ void df018_customActions() {
 
   ROOT::EnableImplicitMT();
 
-  ROOT::RDataFrame rdf{"Events", "~/test_oversampling.root"};
+  ROOT::RDataFrame rdf{"Events", "test_oversampling.root"};
 
   auto dd = rdf.Define("FirstJet_pt", "Jet_pt[0]");
 
@@ -92,9 +102,8 @@ void df018_customActions() {
                          20, 0., 100.};           // Bins and range
 
   // We book the action: it will be treated during the event loop.
-  auto myTH1F = dd.Book<long, float>(std::move(helper),
-                                    {"genEventProgressiveNumber", "FirstJet_pt"});
+  auto myTH1F = dd.Book<long, float>(
+      std::move(helper), {"genEventProgressiveNumber", "FirstJet_pt"});
 
   myTH1F->Print();
 }
-
