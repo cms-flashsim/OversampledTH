@@ -6,6 +6,8 @@ public:
   using Result_t = TH;
 
 private:
+  // Number of slots (threads)
+  int nSlots;
   // Use unordered_map instead of map for faster access times
   std::unordered_map<long int, std::unordered_map<int, TH>> fHistos;
   // Shared pointer to the final histogram
@@ -14,8 +16,7 @@ private:
   std::vector<long int> current;
   // Keep track of the last flushed event
   long int lastFlush = -1;
-  // Number of slots (threads)
-  int nSlots;
+
 
 public:
   // Constructor with parameters for histogram creation
