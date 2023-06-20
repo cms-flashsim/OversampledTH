@@ -49,6 +49,7 @@ public:
       return;
     }
     if (!(fHistos[genEvent].find(slot) == fHistos[genEvent].end())) {
+      cout << "fHistos[genEvent][slot] exists" << endl;
       fHistos[genEvent].emplace(slot, *(TH *)fFinalHisto->Clone());
       fHistos[genEvent][slot].Reset();
     }
