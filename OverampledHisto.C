@@ -103,7 +103,7 @@ public:
   std::string GetActionName() { return "OversampledTH"; }
 };
 
-void df018_customActionsGPT4() {
+void OversampledHisto() {
 
   ROOT::EnableImplicitMT();
 
